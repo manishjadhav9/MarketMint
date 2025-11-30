@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
-import Navbar from '@/components/Navbar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -103,47 +102,46 @@ export default function SellPage() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      <Navbar />
-      <div className="container mx-auto max-w-4xl px-4 py-8">
-        <h1 className="mb-8 text-3xl font-bold text-gray-900">Sell Your Item</h1>
-        
-        <div className="grid gap-8 lg:grid-cols-[1fr_300px]">
-          <div className="space-y-8">
-            <Card>
-              <CardHeader>
-                <CardTitle>Product Details</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Product Name</Label>
-                    <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      required
-                    />
-                  </div>
+    <div className="min-h-screen bg-background pt-24 pb-20">
+      <div className="container mx-auto px-4">
+        <div className="mx-auto max-w-5xl">
+          <div className="mb-12 text-center">
+            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl mb-4">
+              Sell Your <span className="text-primary">Digital Asset</span>
+            </h1>
+            <p className="text-muted-foreground text-lg">
+              List your item for sale and reach thousands of potential buyers.
+            </p>
+          </div>
+          
+          <div className="grid gap-8 lg:grid-cols-[1fr_400px]">
+            {/* Sell Form */}
+            <div className="glass-card rounded-2xl p-8">
+              <h2 className="text-2xl font-semibold mb-6">Product Details</h2>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Product Name</Label>
+                  <Input
+                    id="name"
+                    placeholder="e.g. Abstract 3D Art"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    required
+                    className="bg-background/50 border-white/10 focus:border-primary/50"
+                  />
+                </div>
+                <div className="grid gap-6 sm:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="price">Price ($)</Label>
                     <Input
                       id="price"
                       type="number"
                       step="0.01"
+                      placeholder="0.00"
                       value={formData.price}
                       onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                       required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="description">Description</Label>
-                    <Textarea
-                      id="description"
-                      value={formData.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      required
-                      className="min-h-[100px]"
+                      className="bg-background/50 border-white/10 focus:border-primary/50"
                     />
                   </div>
                   <div className="space-y-2">
@@ -152,7 +150,7 @@ export default function SellPage() {
                       value={formData.category}
                       onValueChange={(value) => setFormData({ ...formData, category: value })}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-background/50 border-white/10 focus:border-primary/50">
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
                       <SelectContent>
@@ -164,52 +162,89 @@ export default function SellPage() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-2">
-                    <Label>Images</Label>
-                    <div className="grid grid-cols-3 gap-4">
-                      {previews.map((src, idx) => (
-                        <div key={idx} className="relative aspect-square overflow-hidden rounded-lg border bg-gray-100">
-                          <img src={src} alt="" className="h-full w-full object-cover" />
-                          <button
-                            type="button"
-                            onClick={() => removeImage(idx)}
-                            className="absolute right-1 top-1 rounded-full bg-white/80 p-1 text-red-500 hover:bg-white"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                        </div>
-                      ))}
-                      <label className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-gray-300 hover:border-primary hover:bg-gray-50">
-                        <Upload className="mb-2 h-6 w-6 text-gray-400" />
-                        <span className="text-xs text-gray-500">Upload</span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          multiple
-                          className="hidden"
-                          onChange={handleImageChange}
-                        />
-                      </label>
-                    </div>
-                  </div>
-                  <Button type="submit" className="w-full" disabled={submitting}>
-                    {submitting ? 'Listing...' : 'List Item'}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
-
-            <div>
-              <h2 className="mb-4 text-2xl font-bold text-gray-900">Your Listings</h2>
-              {myProducts.length === 0 ? (
-                <p className="text-gray-500">You haven't listed any items yet.</p>
-              ) : (
-                <div className="grid gap-6 sm:grid-cols-2">
-                  {myProducts.map((product) => (
-                    <ProductCard key={product.id} product={{ ...product, user: user! }} onUpdate={fetchMyProducts} />
-                  ))}
                 </div>
-              )}
+                <div className="space-y-2">
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
+                    placeholder="Describe your item in detail..."
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    required
+                    className="min-h-[150px] bg-background/50 border-white/10 focus:border-primary/50"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Images</Label>
+                  <div className="grid grid-cols-3 gap-4">
+                    {previews.map((src, idx) => (
+                      <div key={idx} className="relative aspect-square overflow-hidden rounded-xl border border-white/10 bg-background/50 group">
+                        <img src={src} alt="" className="h-full w-full object-cover transition-transform group-hover:scale-105" />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(idx)}
+                          className="absolute right-2 top-2 rounded-full bg-black/50 p-1.5 text-white backdrop-blur-sm hover:bg-red-500 transition-colors"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                    <label className="flex aspect-square cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-white/20 bg-white/5 hover:border-primary/50 hover:bg-primary/5 transition-all">
+                      <Upload className="mb-2 h-6 w-6 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground font-medium">Upload Image</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        className="hidden"
+                        onChange={handleImageChange}
+                      />
+                    </label>
+                  </div>
+                </div>
+                <Button type="submit" className="w-full h-12 text-base font-medium shadow-lg shadow-primary/25" disabled={submitting}>
+                  {submitting ? 'Listing...' : 'List Item For Sale'}
+                </Button>
+              </form>
+            </div>
+
+            {/* Your Listings Sidebar */}
+            <div className="space-y-6">
+              <div className="glass-card rounded-2xl p-6">
+                <h2 className="text-xl font-semibold mb-4">Your Listings</h2>
+                {myProducts.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <p>You haven't listed any items yet.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                    {myProducts.map((product) => (
+                      <div key={product.id} className="flex gap-3 items-center p-3 rounded-lg hover:bg-white/5 transition-colors border border-transparent hover:border-white/10">
+                        <div className="h-12 w-12 rounded-md bg-muted overflow-hidden shrink-0">
+                          <img 
+                            src={product.images[0]?.image_url ? `http://localhost:4000${product.images[0].image_url}` : 'https://placehold.co/100'} 
+                            alt={product.name}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium truncate">{product.name}</p>
+                          <p className="text-sm text-muted-foreground">${product.price}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              
+              <div className="glass-card rounded-2xl p-6 bg-primary/5 border-primary/10">
+                <h3 className="font-semibold mb-2 text-primary">Selling Tips</h3>
+                <ul className="text-sm text-muted-foreground space-y-2 list-disc pl-4">
+                  <li>Upload high-quality images to attract more buyers.</li>
+                  <li>Write a detailed description including features and condition.</li>
+                  <li>Set a competitive price based on similar items.</li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>

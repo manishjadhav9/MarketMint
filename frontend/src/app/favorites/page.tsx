@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Navbar from '@/components/Navbar';
 import ProductCard from '@/components/ProductCard';
 import api from '@/lib/api';
 import { useAuth } from '@/context/AuthContext';
@@ -40,7 +39,6 @@ export default function FavoritesPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
       
       <main className="container mx-auto px-4 py-8">
         <h1 className="mb-8 text-3xl font-bold text-gray-900">My Favorites</h1>

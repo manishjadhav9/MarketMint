@@ -50,7 +50,16 @@ router.get('/', authenticateToken, async (req: any, res) => {
       where: { user_id: req.user.id },
       include: {
         product: {
-          include: { images: true },
+          include: { 
+            images: true,
+            user: {
+              select: {
+                name: true,
+                phone: true,
+                email: true
+              }
+            }
+          },
         },
       },
     });

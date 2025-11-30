@@ -9,7 +9,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { toast } from 'sonner';
 import Link from 'next/link';
 import api from '@/lib/api';
-import Navbar from '@/components/Navbar';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -47,7 +46,6 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Navbar />
       <div className="flex min-h-[calc(100vh-64px)] items-center justify-center p-4">
         <Card className="w-full max-w-md shadow-lg">
           <CardHeader>
