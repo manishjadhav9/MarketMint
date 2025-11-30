@@ -108,7 +108,13 @@ export default function ExplorePage() {
                 <Link href={`/products/${product.id}`}>
                   <div className="aspect-square overflow-hidden bg-muted relative">
                     <img
-                      src={product.images[0]?.image_url ? `http://localhost:4000${product.images[0].image_url}` : 'https://placehold.co/400'}
+                      src={
+                        product.images[0]?.image_url
+                          ? product.images[0].image_url.startsWith('http')
+                            ? product.images[0].image_url
+                            : `http://localhost:4000${product.images[0].image_url}`
+                          : 'https://placehold.co/400'
+                      }
                       alt={product.name}
                       className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />

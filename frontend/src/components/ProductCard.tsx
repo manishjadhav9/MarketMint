@@ -64,7 +64,13 @@ export default function ProductCard({ product, onUpdate }: { product: Product; o
         <Card className="overflow-hidden border-none shadow-md transition-shadow hover:shadow-xl glass-card">
           <div className="aspect-square w-full overflow-hidden bg-gray-100 relative">
             <img
-              src={`http://localhost:4000${product.images[0]?.image_url}`}
+              src={
+                product.images[0]?.image_url
+                  ? product.images[0].image_url.startsWith('http')
+                    ? product.images[0].image_url
+                    : `http://localhost:4000${product.images[0].image_url}`
+                  : 'https://placehold.co/400'
+              }
               alt={product.name}
               className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
               onError={(e) => (e.currentTarget.src = 'https://placehold.co/400')}

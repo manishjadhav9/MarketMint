@@ -1,48 +1,58 @@
 import express from 'express';
-import prisma from '../config/db';
+import { PrismaClient } from '@prisma/client';
+import { upload } from '../lib/cloudinary';
 import { authenticateToken } from '../middleware/auth';
-import { upload } from '../middleware/upload';
 
 const router = express.Router();
+const prisma = new PrismaClient();
 
-// Create Product
-router.post('/', authenticateToken, upload.array('images', 5), async (req: any, res) => {
+// Create a product with images
+router.post('/', authenticateToken, upload.array('images', 5), async (req: any, res: any) => {
   try {
-    const { name, price, description } = req.body;
-    const files = req.files as Express.Multer.File[];
+    const { name, price, description, category } = req.body;
+    const userId = req.user.id;
+
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ message: 'At least one image is required' });
+    }
 
     const product = await prisma.product.create({
       data: {
-        user_id: req.user.id,
+        user_id: userId,
         name,
         price: parseFloat(price),
         description,
-        category: req.body.category || 'Other',
+        category: category || 'Other',
         images: {
-          create: files.map((file) => ({
-            image_url: `/uploads/${file.filename}`,
+          create: (req.files as any[]).map((file) => ({
+            image_url: file.path, // Cloudinary returns the full URL in file.path
           })),
         },
       },
-      include: { images: true },
+      include: {
+        images: true,
+      },
     });
 
     res.status(201).json(product);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error creating product', error });
+    console.error('Create product error:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
-// Get All Products
-// Get All Products with Search & Filter
+// Get all products
 router.get('/', async (req, res) => {
   try {
     const { search, category } = req.query;
+
     const where: any = {};
 
     if (search) {
-      where.name = { contains: search as string };
+      where.OR = [
+        { name: { contains: search as string } }, // Removed mode: 'insensitive' for SQLite compatibility if needed, but Postgres supports it. keeping simple for now.
+        { description: { contains: search as string } },
+      ];
     }
 
     if (category && category !== 'All') {
@@ -51,17 +61,24 @@ router.get('/', async (req, res) => {
 
     const products = await prisma.product.findMany({
       where,
-      include: { images: true, user: { select: { name: true, phone: true } } },
+      include: {
+        images: true,
+        user: {
+          select: { name: true },
+        },
+      },
       orderBy: { created_at: 'desc' },
     });
+
     res.json(products);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching products' });
+    console.error('Fetch products error:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
 // Get My Products
-router.get('/mine', authenticateToken, async (req: any, res) => {
+router.get('/mine', authenticateToken, async (req: any, res: any) => {
   try {
     const products = await prisma.product.findMany({
       where: { user_id: req.user.id },
@@ -70,39 +87,63 @@ router.get('/mine', authenticateToken, async (req: any, res) => {
     });
     res.json(products);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching my products' });
+    console.error('Fetch my products error:', error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
-// Get Single Product
-router.get('/:id', async (req, res) => {
+// Get single product
+router.get('/:id', async (req: any, res: any) => {
   try {
     const product = await prisma.product.findUnique({
       where: { id: parseInt(req.params.id) },
-      include: { images: true, user: { select: { name: true, phone: true, email: true } } },
+      include: {
+        images: true,
+        user: {
+          select: {
+            name: true,
+            phone: true,
+            email: true,
+          },
+        },
+      },
     });
-    if (!product) return res.status(404).json({ message: 'Product not found' });
+
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
     res.json(product);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching product' });
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
-// Delete Product
-router.delete('/:id', authenticateToken, async (req: any, res) => {
+// Delete product
+router.delete('/:id', authenticateToken, async (req: any, res: any) => {
   try {
     const productId = parseInt(req.params.id);
-    const product = await prisma.product.findUnique({ where: { id: productId } });
+    const userId = req.user.id;
 
-    if (!product) return res.status(404).json({ message: 'Product not found' });
-    if (product.user_id !== req.user.id) {
-      return res.status(403).json({ message: 'Unauthorized' });
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+    });
+
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
     }
 
-    await prisma.product.delete({ where: { id: productId } });
-    res.json({ message: 'Product deleted successfully' });
+    if (product.user_id !== userId) {
+      return res.status(403).json({ message: 'Not authorized' });
+    }
+
+    await prisma.product.delete({
+      where: { id: productId },
+    });
+
+    res.json({ message: 'Product deleted' });
   } catch (error) {
-    res.status(500).json({ message: 'Error deleting product' });
+    res.status(500).json({ message: 'Server error' });
   }
 });
 

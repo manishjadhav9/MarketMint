@@ -111,7 +111,13 @@ export default function ProductDetailsView({ productId, onClose }: ProductDetail
           className="aspect-square rounded-2xl overflow-hidden bg-muted relative glass-card border-0"
         >
           <img
-            src={product.images[activeImage]?.image_url ? `http://localhost:4000${product.images[activeImage].image_url}` : 'https://placehold.co/600'}
+            src={
+              product.images[activeImage]?.image_url
+                ? product.images[activeImage].image_url.startsWith('http')
+                  ? product.images[activeImage].image_url
+                  : `http://localhost:4000${product.images[activeImage].image_url}`
+                : 'https://placehold.co/600'
+            }
             alt={product.name}
             className="h-full w-full object-cover"
           />
@@ -146,7 +152,11 @@ export default function ProductDetailsView({ productId, onClose }: ProductDetail
                 }`}
               >
                 <img
-                  src={`http://localhost:4000${img.image_url}`}
+                  src={
+                    img.image_url.startsWith('http')
+                      ? img.image_url
+                      : `http://localhost:4000${img.image_url}`
+                  }
                   alt={`${product.name} ${idx + 1}`}
                   className="h-full w-full object-cover"
                 />

@@ -222,7 +222,13 @@ export default function SellPage() {
                       <div key={product.id} className="flex gap-3 items-center p-3 rounded-lg hover:bg-white/5 transition-colors border border-transparent hover:border-white/10">
                         <div className="h-12 w-12 rounded-md bg-muted overflow-hidden shrink-0">
                           <img 
-                            src={product.images[0]?.image_url ? `http://localhost:4000${product.images[0].image_url}` : 'https://placehold.co/100'} 
+                            src={
+                              product.images[0]?.image_url
+                                ? product.images[0].image_url.startsWith('http')
+                                  ? product.images[0].image_url
+                                  : `http://localhost:4000${product.images[0].image_url}`
+                                : 'https://placehold.co/100'
+                            } 
                             alt={product.name}
                             className="h-full w-full object-cover"
                           />
