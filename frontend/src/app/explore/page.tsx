@@ -36,7 +36,7 @@ export default function ExplorePage() {
       if (search) params.search = search;
       if (category !== 'All') params.category = category;
 
-      const response = await axios.get('http://localhost:4000/api/products', { params });
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'}/products`, { params });
       setProducts(response.data);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -112,7 +112,7 @@ export default function ExplorePage() {
                         product.images[0]?.image_url
                           ? product.images[0].image_url.startsWith('http')
                             ? product.images[0].image_url
-                            : `http://localhost:4000${product.images[0].image_url}`
+                            : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:4000'}${product.images[0].image_url}`
                           : 'https://placehold.co/400'
                       }
                       alt={product.name}

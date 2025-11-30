@@ -49,7 +49,7 @@ export default function ProductDetailsView({ productId, onClose }: ProductDetail
   const fetchProduct = async (id: string) => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:4000/api/products/${id}`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'}/products/${id}`);
       setProduct(response.data);
     } catch (error) {
       console.error('Error fetching product:', error);
@@ -115,7 +115,7 @@ export default function ProductDetailsView({ productId, onClose }: ProductDetail
               product.images[activeImage]?.image_url
                 ? product.images[activeImage].image_url.startsWith('http')
                   ? product.images[activeImage].image_url
-                  : `http://localhost:4000${product.images[activeImage].image_url}`
+                  : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:4000'}${product.images[activeImage].image_url}`
                 : 'https://placehold.co/600'
             }
             alt={product.name}
@@ -155,7 +155,7 @@ export default function ProductDetailsView({ productId, onClose }: ProductDetail
                   src={
                     img.image_url.startsWith('http')
                       ? img.image_url
-                      : `http://localhost:4000${img.image_url}`
+                      : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:4000'}${img.image_url}`
                   }
                   alt={`${product.name} ${idx + 1}`}
                   className="h-full w-full object-cover"
